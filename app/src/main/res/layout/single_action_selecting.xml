@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.cardview.widget.CardView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    app:cardCornerRadius="4dp"
+    android:layout_marginBottom="4dp"
+    android:layout_height="wrap_content"
+    android:layout_width="match_parent">
+
+
+<LinearLayout
+    android:id="@+id/ll_actions"
+    android:layout_width="match_parent"
+    android:background="@color/white"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal">
+
+        <ImageView
+            android:id="@+id/iv_action"
+            android:layout_width="36dp"
+            android:layout_height="36dp"
+            android:layout_gravity="center_vertical"
+            android:layout_marginStart="16dp"
+            android:visibility="visible"
+            app:srcCompat="@android:drawable/sym_def_app_icon" />
+
+
+    <TextView
+        android:id="@+id/tv_action_name"
+        android:layout_width="0dp"
+        android:layout_weight="1"
+
+        android:paddingStart="16dp"
+        android:paddingEnd="16dp"
+        tools:text = "Включить/отклчючить фонарик"
+        android:textSize="24sp"
+        android:layout_height="wrap_content"
+        tools:layout_editor_absoluteX="144dp"
+        tools:layout_editor_absoluteY="57dp" />
+    <ToggleButton
+        android:id="@+id/toggle_button_rv"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:visibility="invisible"
+        android:layout_centerInParent="true"
+        android:layout_gravity="center_vertical"
+        android:textOff="Выключить"
+        android:textOn="Включить"
+        />
+   <!-- <com.google.android.material.switchmaterial.SwitchMaterial
+        android:id="@+id/switch_rv"
+        android:layout_width="wrap_content"
+        android:visibility="invisible"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_vertical"
+        />-->
+</LinearLayout>
+</androidx.cardview.widget.CardView>
