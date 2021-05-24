@@ -17,6 +17,10 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.REUSER"
         tools:replace="android:theme">
+        <activity
+            android:name=".ui.preview.PreviewActivity"
+            android:label="@string/title_activity_faq"
+            android:theme="@style/Theme.REUSER.NoActionBar" />
         <activity android:name=".ui.actionsList.ActionsListActivity" />
         <activity android:name=".ui.actionsList.ActionsSelectedActivity" />
         <activity

@@ -22,6 +22,7 @@ import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 
 import ru.ndevelop.reusersamsung.R;
+import ru.ndevelop.reusersamsung.ui.preview.PreviewActivity;
 
 public class ScanFragment extends Fragment{
 
@@ -53,8 +54,8 @@ public class ScanFragment extends Fragment{
         faqBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                //Intent i = new Intent(requireContext(), FaqActivity::class.java)
-               // startActivity(i);
+                Intent i = new Intent(requireContext(), PreviewActivity.class);
+                startActivity(i);
             }
         });
         d = ivNFC.getDrawable();

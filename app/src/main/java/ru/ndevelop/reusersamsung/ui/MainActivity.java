@@ -8,22 +8,22 @@ import android.os.Bundle;
 import android.util.Log;
 import android.widget.Toast;
 
-import com.google.android.material.bottomnavigation.BottomNavigationView;
 
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
-import androidx.navigation.ui.AppBarConfiguration;
 import androidx.navigation.ui.NavigationUI;
+
+import com.google.android.material.bottomnavigation.BottomNavigationView;
 
 import java.util.ArrayList;
 import java.util.List;
-
 import ru.ndevelop.reusersamsung.R;
 import ru.ndevelop.reusersamsung.repositories.DataBaseHandler;
 import ru.ndevelop.reusersamsung.repositories.PreferencesRepository;
 import ru.ndevelop.reusersamsung.ui.actionsList.ActionsSelectedActivity;
+import ru.ndevelop.reusersamsung.ui.preview.PreviewActivity;
 import ru.ndevelop.reusersamsung.utils.Action;
 import ru.ndevelop.reusersamsung.utils.RequestCodes;
 import ru.ndevelop.reusersamsung.utils.Utils;
@@ -37,21 +37,19 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        Tag tempTag = (Tag)getIntent().getParcelableExtra(NfcAdapter.EXTRA_TAG);
-        String registeredTag =  "dgg";
+        Tag tempTag = getIntent().getParcelableExtra(NfcAdapter.EXTRA_TAG);
+        String registeredTag =  "";
         if(tempTag!=null){
             registeredTag = Utils.byteArrayToHexString(tempTag.getId());
         }
-        Log.d("DEBUG", registeredTag);
-        Toast.makeText(this, registeredTag, Toast.LENGTH_SHORT).show();
         List<Action> actions = DataBaseHandler.getInstance(this).getTagActions(registeredTag);
-        Log.d("DEBUG", String.valueOf(actions.size()));
 
         if (actions.size()!=0) {
             try {
                 for(int i=0;i<actions.size();i++){
                     Action tempAction = actions.get(i);
                     tempAction.getActionType().performAction(this,tempAction.getStatus(),tempAction.getSpecialData());
+
                 }
             } catch (Exception e) {
                  Toast.makeText(this, "$e", Toast.LENGTH_SHORT).show();
@@ -59,8 +57,8 @@ public class MainActivity extends AppCompatActivity {
             finish();
         } else {
             if(PreferencesRepository.getInstance(this).isFirstLaunch()){
-               // Intent i  = new Intent(this, new FaqActivity());
-               // startActivity(i);
+                Intent i  = new Intent(this, PreviewActivity.class);
+                startActivity(i);
                 PreferencesRepository.getInstance(this).setIsNotFirstLaunch();
             }
             setContentView(R.layout.activity_main);
@@ -106,7 +104,8 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        nfcAdapter.enableForegroundDispatch(this, nfcPendingIntent, null, null);
+        if(nfcAdapter!=null)  nfcAdapter.enableForegroundDispatch(this, nfcPendingIntent, null, null);
+
 
     }
 
