@@ -1,11 +1,14 @@
-package ru.ndevelop.reusersamsung.utils;
+package ru.ndevelop.reusersamsung.core.objects;
 
 import java.io.Serializable;
 
+import ru.ndevelop.reusersamsung.utils.ActionTypes;
+
 public class Action implements Serializable {
-    ActionTypes actionType;
-    boolean status = false;
-    String specialData = "";
+
+    public ActionTypes actionType;
+    public boolean status = false;
+    public String specialData = "";
 
     public Action(ActionTypes actionType) {
         this.actionType = actionType;

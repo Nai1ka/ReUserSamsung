@@ -1,14 +1,21 @@
 package ru.ndevelop.reusersamsung.core.objects;
 
+import androidx.annotation.NonNull;
+import androidx.room.Entity;
+import androidx.room.PrimaryKey;
+
 import java.util.ArrayList;
 
-import ru.ndevelop.reusersamsung.utils.Action;
-
+@Entity
 public class Tag {
     String name = "";
+    @PrimaryKey
+    @NonNull
     String tagId = "";
     ArrayList<Action> actions = new ArrayList<Action>();
     boolean isExpanded = false;
+
+
     public Tag(String name, String tagId){
         this.name = name;
         this.tagId = tagId;

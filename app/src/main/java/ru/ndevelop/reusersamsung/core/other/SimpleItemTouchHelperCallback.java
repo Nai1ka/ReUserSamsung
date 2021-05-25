@@ -1,8 +1,10 @@
-package ru.ndevelop.reusersamsung.core.interfaces;
+package ru.ndevelop.reusersamsung.core.other;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.RecyclerView;
+
+import ru.ndevelop.reusersamsung.core.interfaces.ItemTouchHelperAdapter;
 
 public class SimpleItemTouchHelperCallback extends ItemTouchHelper.Callback {
     ItemTouchHelperAdapter mAdapter;
@@ -20,7 +22,7 @@ public class SimpleItemTouchHelperCallback extends ItemTouchHelper.Callback {
     @Override
     public boolean onMove(@NonNull RecyclerView recyclerView, @NonNull RecyclerView.ViewHolder viewHolder, @NonNull RecyclerView.ViewHolder target) {
         mAdapter.onItemMove(viewHolder.getAdapterPosition(), target.getAdapterPosition());
-        return true;
+        return false;
     }
 
     @Override
@@ -29,8 +31,7 @@ public class SimpleItemTouchHelperCallback extends ItemTouchHelper.Callback {
     }
 
     @Override
-    public boolean isLongPressDragEnabled() {
-        return true;
+    public boolean isLongPressDragEnabled() { return true;
     }
 
     @Override

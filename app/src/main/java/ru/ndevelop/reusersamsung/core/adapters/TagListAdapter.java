@@ -9,6 +9,7 @@ import android.widget.TextView;
 import androidx.recyclerview.widget.RecyclerView;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import io.sulek.ssml.OnSwipeListener;
 import io.sulek.ssml.SimpleSwipeMenuLayout;
@@ -18,12 +19,12 @@ import ru.ndevelop.reusersamsung.R;
 import ru.ndevelop.reusersamsung.core.enums.ButtonType;
 import ru.ndevelop.reusersamsung.core.interfaces.OnEditButtonClickListener;
 import ru.ndevelop.reusersamsung.core.objects.Tag;
-import ru.ndevelop.reusersamsung.utils.Action;
+import ru.ndevelop.reusersamsung.core.objects.Action;
 import ru.ndevelop.reusersamsung.utils.ActionTypes;
 
 public class TagListAdapter extends RecyclerView.Adapter<TagListAdapter.SingleViewHolder> {
 
-    private ArrayList<Tag> items = new ArrayList<>();
+    private List<Tag> items = new ArrayList<>();
     OnEditButtonClickListener mEditButtonClickListener;
 
     public TagListAdapter(OnEditButtonClickListener editButtonClickListener) {
@@ -47,7 +48,7 @@ public class TagListAdapter extends RecyclerView.Adapter<TagListAdapter.SingleVi
         return items.size();
     }
 
-    public void loadItems(ArrayList<ru.ndevelop.reusersamsung.core.objects.Tag> payload) {
+    public void loadItems(List<Tag> payload) {
 
         items = payload;
         notifyDataSetChanged();

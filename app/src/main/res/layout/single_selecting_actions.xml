@@ -6,14 +6,18 @@
     app:cardCornerRadius="4dp"
     android:layout_marginBottom="4dp"
     android:layout_height="wrap_content"
-    android:layout_width="match_parent">
+    app:cardElevation="8dp"
+    android:layout_marginStart="4dp"
+    android:layout_marginEnd="4dp"
+    android:layout_width="match_parent"
+   >
 
 
 <LinearLayout
     android:id="@+id/ll_actions"
     android:layout_width="match_parent"
-    android:background="@color/white"
     android:layout_height="wrap_content"
+
     android:orientation="horizontal">
 
         <ImageView
@@ -30,14 +34,12 @@
         android:id="@+id/tv_action_name"
         android:layout_width="0dp"
         android:layout_weight="1"
-
         android:paddingStart="16dp"
         android:paddingEnd="16dp"
         tools:text = "Включить/отклчючить фонарик"
         android:textSize="24sp"
         android:layout_height="wrap_content"
-        tools:layout_editor_absoluteX="144dp"
-        tools:layout_editor_absoluteY="57dp" />
+        />
     <ToggleButton
         android:id="@+id/toggle_button_rv"
         android:layout_width="wrap_content"

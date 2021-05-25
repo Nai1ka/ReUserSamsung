@@ -1,6 +1,5 @@
 package ru.ndevelop.reusersamsung.ui.actionsList;
 
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.text.InputType;
@@ -23,13 +22,16 @@ import com.google.android.material.textfield.TextInputEditText;
 
 import java.util.ArrayList;
 
+import ru.ndevelop.reusersamsung.App;
 import ru.ndevelop.reusersamsung.R;
 import ru.ndevelop.reusersamsung.core.adapters.SelectedActionsAdapter;
 import ru.ndevelop.reusersamsung.core.interfaces.OnItemStateListener;
 import ru.ndevelop.reusersamsung.core.interfaces.OnStartDragListener;
-import ru.ndevelop.reusersamsung.core.interfaces.SimpleItemTouchHelperCallback;
-import ru.ndevelop.reusersamsung.repositories.DataBaseHandler;
-import ru.ndevelop.reusersamsung.utils.Action;
+import ru.ndevelop.reusersamsung.core.other.SimpleItemTouchHelperCallback;
+import ru.ndevelop.reusersamsung.core.interfaces.TagDao;
+import ru.ndevelop.reusersamsung.core.objects.Tag;
+import ru.ndevelop.reusersamsung.repositories.AppDatabase;
+import ru.ndevelop.reusersamsung.core.objects.Action;
 import ru.ndevelop.reusersamsung.utils.RequestCodes;
 
 public class ActionsSelectedActivity extends AppCompatActivity implements View.OnClickListener, OnStartDragListener, OnItemStateListener {
@@ -44,17 +46,27 @@ public class ActionsSelectedActivity extends AppCompatActivity implements View.O
     private FloatingActionButton fabDelete;
     private String tagId = "";
     int fabDeleteClickCounter =0;
+    private AppDatabase database;
+    TagDao tagDao;
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_actions_select);
+        database = App.getInstance().getDatabase();
+        tagDao = database.getTagDao();
         tagId = getIntent().getStringExtra("tagId");
         if(tagId==null) tagId ="";
         selectedActionsAdapter = new SelectedActionsAdapter(this, this);
-        ArrayList<Action> tagActions = DataBaseHandler.getTagActions(tagId);
-        String tagName = DataBaseHandler.getTagName(tagId);
+        Tag receivedTag =tagDao.getTagById(tagId);
+        ArrayList<Action> tagActions = new ArrayList<>();
+        String tagName = null;
+        if(receivedTag!=null )  {
+            tagActions =receivedTag.getActions();
+            tagName = receivedTag.getName();
+        }
+
         initViews();
-        if(tagActions.size()>0) {
+        if(tagActions.size()>0 && tagName!=null) {
             selectedActionsAdapter.loadActions(tagActions);
             etName.setText(tagName);
         }
@@ -130,7 +142,7 @@ public class ActionsSelectedActivity extends AppCompatActivity implements View.O
         switch (requestCode){
             case RequestCodes.actionsListRequestCode:
                 Action action = (Action)data.getSerializableExtra("action");
-                newActionDetected(action);
+                selectedActionsAdapter.addAction(action);
         }
         }
 
@@ -139,78 +151,7 @@ public class ActionsSelectedActivity extends AppCompatActivity implements View.O
     public void onStartDrag(RecyclerView.ViewHolder viewHolder) {
         touchHelper.startDrag(viewHolder);
     }
-    private void newActionDetected(Action action){
-        switch (action.getActionType()){
-            case SITE:
-                openSiteEditTextDialog(action);
-                break;
-            case APPLICATION:
-                openApplicationEditTextDialog(action);
-                break;
-            case DELAY:
-                openTimerEditTextDialog(action);
-                break;
-            default:
-                selectedActionsAdapter.addAction(action);
-        }
 
-
-
-    }
-    private void openSiteEditTextDialog(Action action){
-        EditText taskEditText = new EditText(this);
-        AlertDialog dialog = new AlertDialog.Builder(this)
-                .setTitle("Введите адресс сайта")
-                .setMessage("Какой сайт открыть?")
-                .setView(taskEditText)
-                .setPositiveButton("Ок", (dialog1, which) -> {
-                    String url = taskEditText.getText().toString();
-                    if (!url.startsWith("http://") && !url.startsWith("https://"))
-                        url = "http://"+url;
-                    action.setSpecialData(url);
-                    selectedActionsAdapter.addAction(action);
-                })
-
-            .setNegativeButton("Отмена", null)
-                .create();
-        dialog.show();
-    }
-    private void openApplicationEditTextDialog(Action action){
-        EditText taskEditText = new EditText(this);
-        AlertDialog dialog = new AlertDialog.Builder(this)
-                .setTitle("Введите название пакета приложения")
-                .setMessage("Например ru.ndevelop.reuser")
-                .setView(taskEditText)
-                .setPositiveButton("Ок", (dialog1, which) -> {
-                    action.setSpecialData( taskEditText.getText().toString());
-                    selectedActionsAdapter.addAction(action);
-                })
-            .setNegativeButton("Отмена", null)
-                .create();
-        dialog.show();
-    }
-    private void openTimerEditTextDialog(Action action){
-        EditText taskEditText = new EditText(this);
-        taskEditText.setRawInputType(InputType.TYPE_CLASS_NUMBER);
-        AlertDialog dialog = new AlertDialog.Builder(this)
-                .setTitle("Введите сколько нужно подождать")
-                .setMessage("Введите время в секундах")
-                .setView(taskEditText)
-                .setPositiveButton("Ок", (dialog1, which) -> {
-                    String inputTime =  taskEditText.getText().toString();
-                    if(inputTime.matches("\\d+"))  {
-                        action.setSpecialData(inputTime);
-                        selectedActionsAdapter.addAction(action);
-                    }
-                    else {
-                        Toast.makeText(this, "Время введено неверно", Toast.LENGTH_SHORT).show();
-                        openTimerEditTextDialog(action);
-                    }
-                })
-            .setNegativeButton("Отмена", null)
-                .create();
-        dialog.show();
-    }
 
 
     @Override

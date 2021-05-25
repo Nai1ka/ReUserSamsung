@@ -16,7 +16,7 @@ import java.util.ArrayList;
 
 import ru.ndevelop.reusersamsung.R;
 import ru.ndevelop.reusersamsung.core.interfaces.OnActionClickListener;
-import ru.ndevelop.reusersamsung.utils.Action;
+import ru.ndevelop.reusersamsung.core.objects.Action;
 import ru.ndevelop.reusersamsung.utils.ActionTypes;
 import ru.ndevelop.reusersamsung.utils.Utils;
 
@@ -33,7 +33,7 @@ public class ActionsAdapter extends RecyclerView.Adapter<ActionsAdapter.SingleVi
     @Override
     public SingleViewHolder onCreateViewHolder( ViewGroup parent, int viewType) {
         LayoutInflater inflater = LayoutInflater.from(parent.getContext());
-        View convertView = inflater.inflate(R.layout.single_action_selecting, parent, false);
+        View convertView = inflater.inflate(R.layout.single_selecting_actions, parent, false);
         return new SingleViewHolder(convertView);
     }
 
@@ -49,34 +49,31 @@ public class ActionsAdapter extends RecyclerView.Adapter<ActionsAdapter.SingleVi
 
     class SingleViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
         private TextView tvActionName = itemView.findViewById(R.id.tv_action_name);
-        private LinearLayout llAction  = itemView.findViewById(R.id.ll_actions);
+       // private LinearLayout llAction  = itemView.findViewById(R.id.ll_actions);
         private ToggleButton toggleButton = itemView.findViewById(R.id.toggle_button_rv);
         private ImageView ivAction = itemView.findViewById(R.id.iv_action);
+
         public SingleViewHolder(View itemView) {
             super(itemView);
         }
         void bind(Action item){
+            itemView.setOnClickListener(this);
             tvActionName.setText(item.getActionType().getActionName());
-            llAction.setTag(item.getActionType().name());
+            itemView.setTag(item.getActionType().name());
             toggleButton.setChecked(false);
             ivAction.setImageResource(item.getActionType().getIcon());
-            llAction.setBackgroundResource(R.color.white);
             if (item.getActionType().getIsTwoStatuses()) toggleButton.setVisibility(View.VISIBLE);
             else toggleButton.setVisibility(View.INVISIBLE);
             toggleButton.setOnClickListener(this);
-            llAction.setOnClickListener(this);
 
         }
 
         @Override
         public void onClick(View v) {
             if (v != null) {
-                llAction.setBackgroundResource(R.color.lightGrey);
-                Action tempAction = new Action(ActionTypes.valueOf((String) llAction.getTag()));
+                Action tempAction = new Action(ActionTypes.valueOf((String) itemView.getTag()));
                 if(tempAction.getActionType().ordinal()!=lastClickPosition)  notifyItemChanged(lastClickPosition);
-
-                lastClickPosition = tempAction.getActionType().ordinal();
-
+               // lastClickPosition = tempAction.getActionType().ordinal();
                 tempAction.setStatus(toggleButton.isChecked());
                 clickListener.onActionClicked(tempAction);
 

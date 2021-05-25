@@ -10,7 +10,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import kotlin.jvm.internal.Intrinsics;
+import ru.ndevelop.reusersamsung.core.objects.Action;
 
 
 public class Utils {
@@ -43,8 +43,8 @@ public class Utils {
             String[] tempAction = tempActions.get(i).split("-");
             if(tempAction.length==4) {
                 Action resultAction = new Action(ActionTypes.valueOf(tempAction[1]));
-                resultAction.status = tempAction[2] == "1";
-                resultAction.specialData = tempAction[3];
+                resultAction.setStatus(tempAction[2].equals("1"));
+                resultAction.setSpecialData(tempAction[3]);
                 result.add(resultAction);
             }
             else if(tempAction.length==3){

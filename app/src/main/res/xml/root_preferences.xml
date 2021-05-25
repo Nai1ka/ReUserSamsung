@@ -8,6 +8,14 @@
 
 
     </PreferenceCategory>
+    <PreferenceCategory app:title="@string/other_header">
+        <Preference
+                android:key="DEVELOPER_SITE"
+                android:singleLine="true"
+                android:title="Связь с разработчиком"
+                android:summary="Откроется страница в браузере"/>
+
+    </PreferenceCategory>
 
 
 

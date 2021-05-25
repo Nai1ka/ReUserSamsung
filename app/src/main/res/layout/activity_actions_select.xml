@@ -58,6 +58,7 @@
                 android:id="@+id/til_name"
                 style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
                 android:layout_width="match_parent"
+                android:padding="8dp"
                 android:layout_height="wrap_content">
 
 
@@ -99,7 +100,7 @@
         android:layout_gravity="bottom|end"
         android:layout_margin="10dp"
         android:backgroundTint="#73A344"
-        android:src="@drawable/ic_baseline_check_24" />
+        android:src="@drawable/ic_baseline_arrow_forward_24" />
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/fab_delete"

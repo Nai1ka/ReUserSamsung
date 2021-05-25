@@ -2,12 +2,12 @@ package ru.ndevelop.reusersamsung.ui;
 
 import android.app.PendingIntent;
 import android.content.Intent;
+import android.net.Uri;
 import android.nfc.NfcAdapter;
 import android.nfc.Tag;
+import android.os.AsyncTask;
 import android.os.Bundle;
-import android.util.Log;
 import android.widget.Toast;
-
 
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
@@ -19,51 +19,63 @@ import com.google.android.material.bottomnavigation.BottomNavigationView;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import ru.ndevelop.reusersamsung.App;
 import ru.ndevelop.reusersamsung.R;
-import ru.ndevelop.reusersamsung.repositories.DataBaseHandler;
+import ru.ndevelop.reusersamsung.core.interfaces.OnSettingsChangeListener;
+import ru.ndevelop.reusersamsung.core.interfaces.TagDao;
+import ru.ndevelop.reusersamsung.core.objects.Action;
+import ru.ndevelop.reusersamsung.repositories.AppDatabase;
 import ru.ndevelop.reusersamsung.repositories.PreferencesRepository;
 import ru.ndevelop.reusersamsung.ui.actionsList.ActionsSelectedActivity;
 import ru.ndevelop.reusersamsung.ui.preview.PreviewActivity;
-import ru.ndevelop.reusersamsung.utils.Action;
 import ru.ndevelop.reusersamsung.utils.RequestCodes;
 import ru.ndevelop.reusersamsung.utils.Utils;
 
 
-public class MainActivity extends AppCompatActivity {
- //   private var nfcAdapter: NfcAdapter? = null
+public class MainActivity extends AppCompatActivity implements OnSettingsChangeListener {
+    //   private var nfcAdapter: NfcAdapter? = null
     private NfcAdapter nfcAdapter;
     private PendingIntent nfcPendingIntent;
+    private AppDatabase database;
+    NavController navController;
+    TagDao tagDao;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        Tag tempTag = getIntent().getParcelableExtra(NfcAdapter.EXTRA_TAG);
-        String registeredTag =  "";
-        if(tempTag!=null){
-            registeredTag = Utils.byteArrayToHexString(tempTag.getId());
-        }
-        List<Action> actions = DataBaseHandler.getInstance(this).getTagActions(registeredTag);
+        database = App.getInstance().getDatabase();
+        tagDao = database.getTagDao();
 
-        if (actions.size()!=0) {
+        Tag tempTag = getIntent().getParcelableExtra(NfcAdapter.EXTRA_TAG);
+        String registeredTag = "";
+        List<Action> actions = new ArrayList<Action>();
+        if (tempTag != null) {
+            registeredTag = Utils.byteArrayToHexString(tempTag.getId());
+            ru.ndevelop.reusersamsung.core.objects.Tag receivedTag = tagDao.getTagById(registeredTag);
+            if (receivedTag != null) actions = receivedTag.getActions();
+        }
+        if (actions.size() != 0) {
             try {
-                for(int i=0;i<actions.size();i++){
+                for (int i = 0; i < actions.size(); i++) {
                     Action tempAction = actions.get(i);
-                    tempAction.getActionType().performAction(this,tempAction.getStatus(),tempAction.getSpecialData());
+                    tempAction.getActionType().performAction(this, tempAction.getStatus(), tempAction.getSpecialData());
 
                 }
             } catch (Exception e) {
-                 Toast.makeText(this, "$e", Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, "$e", Toast.LENGTH_SHORT).show();
             }
             finish();
         } else {
-            if(PreferencesRepository.getInstance(this).isFirstLaunch()){
-                Intent i  = new Intent(this, PreviewActivity.class);
+            if (PreferencesRepository.getInstance(this).isFirstLaunch()) {
+                Intent i = new Intent(this, PreviewActivity.class);
                 startActivity(i);
                 PreferencesRepository.getInstance(this).setIsNotFirstLaunch();
             }
             setContentView(R.layout.activity_main);
             BottomNavigationView navView = findViewById(R.id.nav_view);
-            NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment);
+
+            navController = Navigation.findNavController(this, R.id.nav_host_fragment);
             NavigationUI.setupWithNavController(navView, navController);
             nfcAdapter = NfcAdapter.getDefaultAdapter(this);
             nfcPendingIntent = PendingIntent.getActivity(
@@ -83,19 +95,27 @@ public class MainActivity extends AppCompatActivity {
         if (data == null) {
             return;
         }
-        if(requestCode == RequestCodes.nfcRequestCode)  {
+        if (requestCode == RequestCodes.nfcRequestCode) {
 
-                String tagId = data.getStringExtra("tagId"); //TODO тоже сделать проверку
-                if(tagId==null) tagId = "";
-                String tagName = data.getStringExtra("tagName");
-                if(tagName==null) tagName = "New Tag";
-                ArrayList<Action> actions =
-                ((ArrayList<Action>)data.getSerializableExtra("actions"))  ;
-                        DataBaseHandler.updateIfExistsElseInsert(
-                                tagId,
-                                tagName,
-                                actions
-                        );
+            String tagId = data.getStringExtra("tagId"); //TODO тоже сделать проверку
+            if (tagId == null) tagId = "";
+            String tagName = data.getStringExtra("tagName");
+            if (tagName == null) tagName = "New Tag";
+            ArrayList<Action> actions =
+                    ((ArrayList<Action>) data.getSerializableExtra("actions"));
+
+
+            ru.ndevelop.reusersamsung.core.objects.Tag tag = new ru.ndevelop.reusersamsung.core.objects.Tag(tagName, tagId);
+
+
+            tag.setActions(actions);
+
+            AsyncTask.execute(() -> tagDao.addTag(tag));
+            navController.popBackStack(); //-> it's because you must delete one step from navigation
+            navController.navigate(
+                    R.id.navigation_taglist
+            );
+
 
 
         }
@@ -104,7 +124,8 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        if(nfcAdapter!=null)  nfcAdapter.enableForegroundDispatch(this, nfcPendingIntent, null, null);
+        if (nfcAdapter != null)
+            nfcAdapter.enableForegroundDispatch(this, nfcPendingIntent, null, null);
 
 
     }
@@ -122,9 +143,9 @@ public class MainActivity extends AppCompatActivity {
     protected void onNewIntent(Intent intent) {
         super.onNewIntent(intent);
         Tag tempTag = intent.getParcelableExtra(NfcAdapter.EXTRA_TAG);
-        if(tempTag!=null){
+        if (tempTag != null) {
             String tagId = Utils.byteArrayToHexString(tempTag.getId());
-            if (DataBaseHandler.getInstance(this).isTagAlreadyExist(tagId)) {
+            if (tagDao.getTagById(tagId) != null) {
                 Toast.makeText(
                         this,
                         "Такая метка уже существует. Информация будет перезаписана",
@@ -138,9 +159,25 @@ public class MainActivity extends AppCompatActivity {
 
 
     }
-    public void startActionsSelectionActivity(String tagId){
+
+    public void startActionsSelectionActivity(String tagId) {
         Intent i = new Intent(this, ActionsSelectedActivity.class);
         i.putExtra("tagId", tagId);
         startActivityForResult(i, RequestCodes.nfcRequestCode);
+    }
+
+    @Override
+    public void onBackgroundChangedClicked() {
+
+    }
+
+    @Override
+    public void onAdsClickedListener() {
+
+    }
+
+    @Override
+    public void onSiteClickedListener() {
+
     }
 }

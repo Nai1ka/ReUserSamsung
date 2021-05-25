@@ -11,11 +11,13 @@ import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.RecyclerView;
 
 import io.sulek.ssml.SSMLLinearLayoutManager;
+import ru.ndevelop.reusersamsung.App;
 import ru.ndevelop.reusersamsung.R;
 import ru.ndevelop.reusersamsung.core.adapters.TagListAdapter;
 import ru.ndevelop.reusersamsung.core.enums.ButtonType;
 import ru.ndevelop.reusersamsung.core.interfaces.OnEditButtonClickListener;
-import ru.ndevelop.reusersamsung.repositories.DataBaseHandler;
+import ru.ndevelop.reusersamsung.core.interfaces.TagDao;
+import ru.ndevelop.reusersamsung.repositories.AppDatabase;
 import ru.ndevelop.reusersamsung.ui.MainActivity;
 
 public class TagListFragment extends Fragment implements OnEditButtonClickListener {
@@ -23,11 +25,15 @@ public class TagListFragment extends Fragment implements OnEditButtonClickListen
 
     private RecyclerView recyclerView;
     private TagListAdapter tagListAdapter;
+    private AppDatabase database;
+    TagDao tagDao;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         tagListAdapter = new TagListAdapter(this);
+        database = App.getInstance().getDatabase();
+        tagDao = database.getTagDao();
     }
 
     public View onCreateView(LayoutInflater inflater,
@@ -49,9 +55,9 @@ public class TagListFragment extends Fragment implements OnEditButtonClickListen
         AlertDialog dialog = new AlertDialog.Builder(requireContext())
                 .setTitle("Вы уверены, что хотите удалить эту метку?")
                 .setMessage("Это действие нельзя отменить")
-                .setPositiveButton("5", (dialog1, which) -> {
-                    DataBaseHandler.deleteData(tagId);
-                    tagListAdapter.loadItems(DataBaseHandler.getTagsList());
+                .setPositiveButton("Ок", (dialog1, which) -> {
+                   tagDao.delete(tagId);
+                    tagListAdapter.loadItems(tagDao.getAllTags());
                     tagListAdapter.notifyDataSetChanged();
                 })
                 .setNegativeButton("Не надо", null)
@@ -76,6 +82,6 @@ public class TagListFragment extends Fragment implements OnEditButtonClickListen
     @Override
     public void onResume() {
         super.onResume();
-        tagListAdapter.loadItems(DataBaseHandler.getTagsList());
+        tagListAdapter.loadItems(tagDao.getAllTags());
     }
 }
