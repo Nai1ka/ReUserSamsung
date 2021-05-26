@@ -154,10 +154,6 @@ public class MainActivity extends AppCompatActivity implements OnSettingsChangeL
             }
             startActionsSelectionActivity(tagId);
         }
-
-        //TODO проверить корректность метки(возможно)
-
-
     }
 
     public void startActionsSelectionActivity(String tagId) {

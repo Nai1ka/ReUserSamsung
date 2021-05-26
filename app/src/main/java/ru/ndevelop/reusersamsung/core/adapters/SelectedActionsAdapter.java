@@ -1,5 +1,7 @@
 package ru.ndevelop.reusersamsung.core.adapters;
 
+import android.content.Context;
+import android.os.Vibrator;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -11,6 +13,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import java.util.ArrayList;
 
+import ru.ndevelop.reusersamsung.App;
 import ru.ndevelop.reusersamsung.R;
 import ru.ndevelop.reusersamsung.core.interfaces.ItemTouchHelperAdapter;
 import ru.ndevelop.reusersamsung.core.interfaces.OnItemStateListener;
@@ -98,9 +101,23 @@ public class SelectedActionsAdapter extends RecyclerView.Adapter<SelectedActions
         }
 
         void bind(Action item) {
-            tvActionName.setText(item.getActionType().getActionName());
+            String actionName = "";
+            if (item.getActionType().getIsTwoStatuses()) {
+                if (item.getStatus()) actionName = "Включить ";
+                else actionName = "Выключить ";
+            }
+            actionName+=item.getActionType().getActionName();
+            if(!item.getSpecialData().equals(""))
+                actionName+=" "+item.getSpecialData();
+            tvActionName.setText(actionName);
+
             llAction.setTag(item.getActionType().getActionName());
             ivAction.setImageResource(item.getActionType().getIcon());
+            itemView.setOnLongClickListener(v -> {
+                Vibrator vibrator = (Vibrator)itemView.getContext().getSystemService(Context.VIBRATOR_SERVICE);
+                if(vibrator!=null) vibrator.vibrate(100);
+                return false;
+            });
             //toggleButton.setClickable(false);
             //  if (item.getActionType().getIsTwoStatuses()) {
             //  toggleButton.setVisibility(View.VISIBLE);

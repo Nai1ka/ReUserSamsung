@@ -2,22 +2,19 @@ package ru.ndevelop.reusersamsung.ui.actionsList;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.text.InputType;
 import android.view.View;
 import android.widget.Button;
-import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.Toast;
 
 import androidx.annotation.Nullable;
-import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.textfield.TextInputEditText;
 
 import java.util.ArrayList;
@@ -38,20 +35,18 @@ public class ActionsSelectedActivity extends AppCompatActivity implements View.O
     private RecyclerView rvSelectedActions;
     private SelectedActionsAdapter selectedActionsAdapter;
     private ConstraintLayout llIfActionsNotSelected;
-    private Button btnAdd;
     private LinearLayout llNotEmpty;
     private TextInputEditText etName;
     private ItemTouchHelper touchHelper;
-    private FloatingActionButton fabOk;
-    private FloatingActionButton fabDelete;
+    private ImageButton btnOk;
+    private ImageButton btnAdd;
     private String tagId = "";
-    int fabDeleteClickCounter =0;
     private AppDatabase database;
     TagDao tagDao;
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_actions_select);
+        setContentView(R.layout.activity_actions_selected);
         database = App.getInstance().getDatabase();
         tagDao = database.getTagDao();
         tagId = getIntent().getStringExtra("tagId");
@@ -76,22 +71,12 @@ public class ActionsSelectedActivity extends AppCompatActivity implements View.O
         llIfActionsNotSelected.setOnClickListener(this);
         rvSelectedActions = findViewById(R.id.rv_selected_actions);
         llNotEmpty = findViewById(R.id.ll_not_empty);
-        btnAdd = findViewById(R.id.btn_add_actions);
-        btnAdd.setOnClickListener(this);
         etName = findViewById(R.id.et_name);
-;
-        fabOk = findViewById(R.id.fab_ok);
-        fabOk.setOnClickListener(this);
-        fabDelete = findViewById(R.id.fab_delete);
-        fabDelete.setOnLongClickListener(new View.OnLongClickListener() {
-            @Override
-            public boolean onLongClick(View v) {
-                selectedActionsAdapter.clear();
-                fabDeleteClickCounter = 0;
-                return false;
-            }
-        });
-        fabDelete.setOnClickListener(this);
+        btnOk = findViewById(R.id.fab_ok);
+        btnOk.setOnClickListener(this);
+        btnAdd = findViewById(R.id.fab_add);
+
+        btnAdd.setOnClickListener(this);
         rvSelectedActions.setAdapter(selectedActionsAdapter);
         rvSelectedActions.setLayoutManager(new LinearLayoutManager(this));
 
@@ -109,14 +94,7 @@ public class ActionsSelectedActivity extends AppCompatActivity implements View.O
             Intent i = new Intent(this, ActionsListActivity.class);
             startActivityForResult(i, RequestCodes.actionsListRequestCode);
         }
-        else if(v==fabDelete){
-            fabDeleteClickCounter += 1;
-            if (fabDeleteClickCounter > 1) {
-                Toast.makeText(this, "Удерживайте, чтобы удалить", Toast.LENGTH_SHORT).show();
-                fabDeleteClickCounter = 0;
-            }
-        }
-        else if(v==fabOk){
+        else if(v== btnOk){
             if (selectedActionsAdapter.getItems().size()!=0) {
                 Intent intent = new Intent();
                 String tagName = etName.getText().toString();
@@ -158,15 +136,17 @@ public class ActionsSelectedActivity extends AppCompatActivity implements View.O
     public void onItemDeleted(int currentItemsSize) {
         if(currentItemsSize==0) {
             llNotEmpty.setVisibility(View.GONE);
-            fabDelete.setVisibility( View.GONE);
-            llIfActionsNotSelected.setVisibility( View.GONE);
+            btnAdd.setVisibility( View.VISIBLE);
+            btnOk.setVisibility(View.GONE);
+            llIfActionsNotSelected.setVisibility( View.VISIBLE);
         }
     }
 
     @Override
     public void onItemAdded() {
         llNotEmpty.setVisibility(View.VISIBLE);
-        fabDelete.setVisibility( View.VISIBLE);
+        btnAdd.setVisibility( View.VISIBLE);
+        btnOk.setVisibility(View.VISIBLE);
         llIfActionsNotSelected.setVisibility( View.GONE);
     }
 }

@@ -50,7 +50,7 @@ public class ActionsAdapter extends RecyclerView.Adapter<ActionsAdapter.SingleVi
     class SingleViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
         private TextView tvActionName = itemView.findViewById(R.id.tv_action_name);
        // private LinearLayout llAction  = itemView.findViewById(R.id.ll_actions);
-        private ToggleButton toggleButton = itemView.findViewById(R.id.toggle_button_rv);
+
         private ImageView ivAction = itemView.findViewById(R.id.iv_action);
 
         public SingleViewHolder(View itemView) {
@@ -60,11 +60,9 @@ public class ActionsAdapter extends RecyclerView.Adapter<ActionsAdapter.SingleVi
             itemView.setOnClickListener(this);
             tvActionName.setText(item.getActionType().getActionName());
             itemView.setTag(item.getActionType().name());
-            toggleButton.setChecked(false);
+
             ivAction.setImageResource(item.getActionType().getIcon());
-            if (item.getActionType().getIsTwoStatuses()) toggleButton.setVisibility(View.VISIBLE);
-            else toggleButton.setVisibility(View.INVISIBLE);
-            toggleButton.setOnClickListener(this);
+
 
         }
 
@@ -74,7 +72,8 @@ public class ActionsAdapter extends RecyclerView.Adapter<ActionsAdapter.SingleVi
                 Action tempAction = new Action(ActionTypes.valueOf((String) itemView.getTag()));
                 if(tempAction.getActionType().ordinal()!=lastClickPosition)  notifyItemChanged(lastClickPosition);
                // lastClickPosition = tempAction.getActionType().ordinal();
-                tempAction.setStatus(toggleButton.isChecked());
+                tempAction.setStatus(true);
+                //TODO сделать статус у действия (вкл/выкл)
                 clickListener.onActionClicked(tempAction);
 
 

@@ -15,6 +15,7 @@ public class App extends Application {
 
     public static App instance;
     private AppDatabase database;
+    private static Context context;
 
 
 
@@ -22,6 +23,7 @@ public class App extends Application {
     public void onCreate() {
         super.onCreate();
         instance = this;
+        App.context = getApplicationContext();
         database = Room.databaseBuilder(this, AppDatabase.class, "tag").allowMainThreadQueries()
                 .build();
     }
@@ -30,7 +32,9 @@ public class App extends Application {
     public static App getInstance() {
         return instance;
     }
-
+    public static Context getAppContext() {
+        return App.context;
+    }
     public AppDatabase getDatabase() {
         return database;
     }
