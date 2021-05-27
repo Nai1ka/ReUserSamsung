@@ -19,6 +19,9 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.REUSER"
         tools:replace="android:theme">
+        <meta-data
+            android:name="com.google.android.gms.ads.APPLICATION_ID"
+            android:value="ca-app-pub-6030271375051075~3793461426"/>
         <activity
             android:name=".ui.preview.PreviewActivity"
             android:label="@string/title_activity_faq"

@@ -7,14 +7,23 @@ import android.nfc.NfcAdapter;
 import android.nfc.Tag;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.util.Log;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 import androidx.navigation.ui.NavigationUI;
 
+import com.google.android.gms.ads.AdRequest;
+import com.google.android.gms.ads.LoadAdError;
+import com.google.android.gms.ads.MobileAds;
+import com.google.android.gms.ads.initialization.InitializationStatus;
+import com.google.android.gms.ads.initialization.OnInitializationCompleteListener;
+import com.google.android.gms.ads.interstitial.InterstitialAd;
+import com.google.android.gms.ads.interstitial.InterstitialAdLoadCallback;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
 import java.util.ArrayList;
@@ -40,6 +49,7 @@ public class MainActivity extends AppCompatActivity implements OnSettingsChangeL
     private AppDatabase database;
     NavController navController;
     TagDao tagDao;
+    private InterstitialAd mInterstitialAd;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -77,6 +87,7 @@ public class MainActivity extends AppCompatActivity implements OnSettingsChangeL
 
             navController = Navigation.findNavController(this, R.id.nav_host_fragment);
             NavigationUI.setupWithNavController(navView, navController);
+            initAds();
             nfcAdapter = NfcAdapter.getDefaultAdapter(this);
             nfcPendingIntent = PendingIntent.getActivity(
                     this, 0,
@@ -115,10 +126,35 @@ public class MainActivity extends AppCompatActivity implements OnSettingsChangeL
             navController.navigate(
                     R.id.navigation_taglist
             );
+            showAd();
 
 
 
         }
+    }
+    private void initAds(){
+        MobileAds.initialize(this, new OnInitializationCompleteListener() {
+            @Override
+            public void onInitializationComplete(InitializationStatus initializationStatus) {
+            }
+        });
+        AdRequest adRequest = new AdRequest.Builder().build();
+
+        InterstitialAd.load(this,"ca-app-pub-3940256099942544/1033173712", adRequest, new InterstitialAdLoadCallback() {
+            @Override
+            public void onAdLoaded(@NonNull InterstitialAd interstitialAd) {
+                // The mInterstitialAd reference will be null until
+                // an ad is loaded.
+                mInterstitialAd = interstitialAd;
+            }
+
+            @Override
+            public void onAdFailedToLoad(@NonNull LoadAdError loadAdError) {
+                // Handle the error
+                Log.i("DEBUG", loadAdError.getMessage());
+                mInterstitialAd = null;
+            }
+        });
     }
 
     @Override
@@ -175,5 +211,12 @@ public class MainActivity extends AppCompatActivity implements OnSettingsChangeL
     @Override
     public void onSiteClickedListener() {
 
+    }
+    private void showAd(){
+        if (mInterstitialAd != null) {
+            mInterstitialAd.show(this);
+        } else {
+            Log.d("DEBUG", "The interstitial ad wasn't ready yet.");
+        }
     }
 }
